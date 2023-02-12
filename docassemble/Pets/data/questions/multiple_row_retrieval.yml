@@ -1,0 +1,89 @@
+---
+include:
+  - docassemble.AssemblyLine:assembly_line.yml
+---
+objects:
+  - dataloader: DataLoader.using(filename="pets.xlsx")
+  - pet: PetsDict.using(object_type=DAObject, there_are_any=True, complete_attribute='complete')
+---
+modules:
+  - .load_data
+---
+mandatory: True
+id: interview order
+code: |
+  pet.gather()
+  download
+---
+generic object: ALIndividual
+code: |
+  pet[i].name
+  pet[i].species
+  pet[i].breed
+  pet[i].labels
+  pet[i].complete = True
+---
+id: add new
+question: |
+  Add a pet?
+yesno: pet.new_item_name 
+---
+id: pets names
+question: |
+  Pet's Name
+fields: 
+  - Name: pet[i].name
+---
+id: species
+question: |
+  What species is ${ pet[i].name }?
+fields: 
+  - no label: pet[i].species
+    datatype: checkboxes
+    code: |
+      unique_values(dataloader, search_column="Species")
+    none of the above: False
+---
+id: characteristics
+question: |
+  What characteristics does ${ pet[i].name } have?
+fields:
+  - no label: pet[i].labels
+    datatype: checkboxes
+    code: |
+      get_label(dataloader, search_column="Label", filter_column1="Species", filter_value1=pet[i].species, filter_column2="Breed", filter_value2=pet[i].breed)
+    none of the above: False
+---
+id: breed
+question: |
+  What breed is ${ pet[i].name }?
+fields: 
+  - no label: pet[i].breed
+    datatype: checkboxes
+    code: |
+      unique_values(dataloader, search_column="Breed", filter_column="Species", filter_value=pet[i].species)
+    none of the above: False
+---
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=[pets], filename="pets.docx", title="All forms to download for your records", enabled=True)
+---
+attachments:
+  - name: Pets
+    filename: pets.docx     
+    variable name: pets[i]        
+    skip undefined: True
+    docx template file: pets.docx
+---
+id: download
+event: download
+question: |
+  Your form is ready to download.
+subquestion: |
+  Thank you. Your form is ready to download.
+  
+  
+  ${ al_user_bundle.download_list_html(format="docx") }
+
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
+
+progress: 100
