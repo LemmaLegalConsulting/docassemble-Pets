@@ -23,10 +23,29 @@ code: |
   pet[i].labels
   pet[i].complete = True
 ---
-id: add new
+id: no pets
+event: goodbye
+question: |
+  Goodbye
+---
+## could not get this flow to work
+#question: |
+#  Add a pet?
+#fields:
+#  - "no label": pet.new_item_name
+#    datatype: yesnoradio
+#  - "Do you like pets?": pet.there_is_another 
+#    datatype: noyesradio
+#    show if: pet[i] > 1
+---
 question: |
   Add a pet?
 yesno: pet.new_item_name 
+---
+id: add another pet
+question: |
+  Add another pet?
+yesno: pet.there_is_another 
 ---
 id: pets names
 question: |
@@ -63,6 +82,10 @@ fields:
     code: |
       unique_values(dataloader, search_column="Breed", filter_column="Species", filter_value=pet[i].species)
     none of the above: False
+---
+### Need to get the blurbs corresponding to labels selected for output docx
+code: |
+  pet[i].blurbs = unique_values(dataloader, search_column="Blurb", filter_column="Label", filter_value1=pet[i].labels)
 ---
 objects:
   - al_user_bundle: ALDocumentBundle.using(elements=[pets], filename="pets.docx", title="All forms to download for your records", enabled=True)
