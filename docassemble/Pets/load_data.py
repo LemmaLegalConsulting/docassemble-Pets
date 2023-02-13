@@ -18,7 +18,6 @@ __all__ = [
     "PetsDict",
     "pets_attributes",
     "unique_values",
-    "get_label",
 ]
 
 class BaseDataLoader(DAObject):
@@ -177,32 +176,17 @@ def unique_values(
     #limits: Optional[Dict[str,str]]=None,
     filter_column: Optional[str]=None,
     filter_value: Optional[str]=None,
+    filter_column2: Optional[str]=None,
+    filter_value2: Optional[str]=None,    
 ):
     df = dataloader._load_data()
-    
-    if filter_column and filter_value:
+
+    if filter_column and filter_column2:
+        return list(df[(df[filter_column] == filter_value) & (df[filter_column2] == filter_value2)][search_column].unique())
+    elif filter_column and filter_value:
         return list(df[df[filter_column] == filter_value][search_column].unique())
     return list(df[search_column].unique())
     
-    ## TODO could make this work with multiple options
+    ## TODO could make this work more generalized by passing a dictionary
     ## https://stackoverflow.com/questions/34157811/filter-a-pandas-dataframe-using-values-from-a-dict
-        
-def get_label(
-    dataloader: DataLoader,
-    search_column: str,
-    #limits: Optional[Dict[str,str]]=None,
-    filter_column1: Optional[str]=None,
-    filter_column2: Optional[str]=None,
-    filter_value1: Optional[str]=None,
-    filter_value2: Optional[str]=None,
-):
-    df = dataloader._load_data()
-    
-    if filter_column1 and filter_column2 and filter_value1 and filter_value2:
-        return list(df[(df[filter_column1] == filter_value1) & (df[filter_column2] == filter_value2)[search_column].unique()])
-    elif filter_column1 and filter_column2 and not filter_value1 and filter_value2:
-        return list(df[(df[filter_column1] != filter_value1) & (df[filter_column2] == filter_value2)[search_column].unique()])
-    elif filter_column1 and filter_column2 and not filter_value1 and not filter_value2:
-        return list(df[(df[filter_column1] == filter_value1) & (df[filter_column2] != filter_value2)[search_column].unique()])
-    return list(df[search_column].unique())
     
