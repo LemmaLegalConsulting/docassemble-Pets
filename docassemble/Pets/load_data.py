@@ -16,7 +16,6 @@ __all__ = [
     "DataLoader",
     "Pet",
     "PetsDict",
-    "pets_attributes",
     "unique_values",
 ]
 
@@ -149,26 +148,6 @@ class PetsDict(DADict):
                 pet.row = row
                 flattened.append(pet)
         return flattened
-      
-def pets_attributes(
-    dataloader: DataLoader,
-    category: str,
-    search_column: str = "Species",
-) -> List[Dict]:
-    """
-    Function that simplifies grabbing the row, blurb, etc given
-    a specific s.
-    """
-    df = dataloader._load_data()
-    filtered_df = df[df[search_column].isin([species])]
-    pets = []
-
-    for row in df.iterrows():
-        pets.append(
-            {row[0]: row[1]["Label"]}
-        )
-
-    return pets
   
 def unique_values(
     dataloader: DataLoader,

@@ -19,22 +19,8 @@ code: |
   pet[i].species
   pet[i].breed
   pet[i].labels
+  pet[i].blurbs
   pet[i].complete = True
----
-id: no pets
-event: goodbye
-question: |
-  Goodbye
----
-## could not get this flow to work
-#question: |
-#  Add a pet?
-#fields:
-#  - "no label": pet.new_item_name
-#    datatype: yesnoradio
-#  - "Do you like pets?": pet.there_is_another 
-#    datatype: noyesradio
-#    show if: pet[i] > 1
 ---
 question: |
   Add a pet?
@@ -79,7 +65,7 @@ fields:
 ---
 ### Need to get the blurbs corresponding to labels selected for output docx
 code: |
-  pet[i].blurbs = unique_values(dataloader, search_column="Blurb", filter_column="Label", filter_value1=pet[i].labels)
+  pet[i].blurbs = unique_values(dataloader, search_column="Blurb", filter_column="Label", filter_value=pet[i].labels)
 ---
 objects:
   - al_user_bundle: ALDocumentBundle.using(elements=[pet_attachment], filename="pets.docx", title="All forms to download for your records", enabled=True)
