@@ -15,32 +15,16 @@ code: |
   pet.gather()
   download
 ---
-generic object: ALIndividual
 code: |
-  pet[i].name
   pet[i].species
   pet[i].breed
   pet[i].labels
+  pet[i].blurbs
   pet[i].complete = True
----
-id: no pets
-event: goodbye
-question: |
-  Goodbye
----
-## could not get this flow to work
-#question: |
-#  Add a pet?
-#fields:
-#  - "no label": pet.new_item_name
-#    datatype: yesnoradio
-#  - "Do you like pets?": pet.there_is_another 
-#    datatype: noyesradio
-#    show if: pet[i] > 1
 ---
 question: |
   Add a pet?
-yesno: pet.new_item_name 
+yesno: pet.there_are_any
 ---
 id: add another pet
 question: |
@@ -51,49 +35,48 @@ id: pets names
 question: |
   Pet's Name
 fields: 
-  - Name: pet[i].name
+  - Name: pet.new_item_name
 ---
 id: species
 question: |
-  What species is ${ pet[i].name }?
+  What species is ${ i }?
 fields: 
   - no label: pet[i].species
-    datatype: checkboxes
     code: |
       unique_values(dataloader, search_column="Species")
-    none of the above: False
 ---
 id: characteristics
 question: |
-  What characteristics does ${ pet[i].name } have?
+  What characteristics does ${ i } have?
 fields:
   - no label: pet[i].labels
     datatype: checkboxes
     code: |
-      get_label(dataloader, search_column="Label", filter_column1="Species", filter_value1=pet[i].species, filter_column2="Breed", filter_value2=pet[i].breed)
+      unique_values(dataloader, search_column="Label", filter_column="Species", filter_value=pet[i].species, filter_column2="Breed", filter_value2=pet[i].breed)
     none of the above: False
 ---
 id: breed
 question: |
-  What breed is ${ pet[i].name }?
+  What breed is ${ i }?
 fields: 
   - no label: pet[i].breed
-    datatype: checkboxes
     code: |
       unique_values(dataloader, search_column="Breed", filter_column="Species", filter_value=pet[i].species)
-    none of the above: False
 ---
 ### Need to get the blurbs corresponding to labels selected for output docx
 code: |
-  pet[i].blurbs = unique_values(dataloader, search_column="Blurb", filter_column="Label", filter_value1=pet[i].labels)
+  pet[i].blurbs = unique_values(dataloader, search_column="Blurb", filter_column="Label", filter_value=pet[i].labels)
 ---
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[pets], filename="pets.docx", title="All forms to download for your records", enabled=True)
+  - al_user_bundle: ALDocumentBundle.using(elements=[pet_attachment], filename="pets.docx", title="All forms to download for your records", enabled=True)
+---
+objects:
+  - pet_attachment: ALDocument.using(enabled=True, title="Pets", filename="Pets")
 ---
 attachments:
   - name: Pets
     filename: pets.docx     
-    variable name: pets[i]        
+    variable name: pet_attachment[i]        
     skip undefined: True
     docx template file: pets.docx
 ---
