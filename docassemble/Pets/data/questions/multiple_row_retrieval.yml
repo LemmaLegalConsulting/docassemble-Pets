@@ -18,8 +18,8 @@ code: |
 code: |
   pet[i].species
   pet[i].breed
-  pet[i].labels
-  pet[i].blurbs
+  pet[i].label_ids
+  pet[i].selected_labels_df
   pet[i].complete = True
 ---
 question: |
@@ -49,11 +49,17 @@ id: characteristics
 question: |
   What characteristics does ${ i } have?
 fields:
-  - no label: pet[i].labels
+  - no label: pet[i].label_ids
     datatype: checkboxes
     code: |
-      unique_values(dataloader, search_column="Label", filter_column="Species", filter_value=pet[i].species, filter_column2="Breed", filter_value2=pet[i].breed)
+      rows_with_label(dataloader, display_column="Label", filter_column="Species", filter_value=pet[i].species, filter_column2="Breed", filter_value2=pet[i].breed)
     none of the above: False
+---
+code: |
+  pet[i].selected_labels_df = dataloader.load_rows(
+    int(val)
+    for val in pet[i].label_ids.true_values()
+  )
 ---
 id: breed
 question: |
@@ -62,10 +68,6 @@ fields:
   - no label: pet[i].breed
     code: |
       unique_values(dataloader, search_column="Breed", filter_column="Species", filter_value=pet[i].species)
----
-### Need to get the blurbs corresponding to labels selected for output docx
-code: |
-  pet[i].blurbs = unique_values(dataloader, search_column="Blurb", filter_column="Label", filter_value=pet[i].labels)
 ---
 objects:
   - al_user_bundle: ALDocumentBundle.using(elements=[pet_attachment], filename="pets.docx", title="All forms to download for your records", enabled=True)

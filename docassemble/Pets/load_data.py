@@ -17,6 +17,7 @@ __all__ = [
     "Pet",
     "PetsDict",
     "unique_values",
+    "rows_with_label",
 ]
 
 class BaseDataLoader(DAObject):
@@ -120,7 +121,7 @@ class DataLoader(BaseDataLoader):
         df = super()._load_data()
         df.set_index(
             "ID", inplace=True
-        )  # Our XLSX file has a column 'ID' with a text invariant identifier
+        )  # Our XLSX file has a column 'ID' with a unique identifier for each row
         return df
       
 class Pet(DAObject):
@@ -148,7 +149,24 @@ class PetsDict(DADict):
                 pet.row = row
                 flattened.append(pet)
         return flattened
-  
+
+
+def filter_df(
+    dataloader: DataLoader,
+    filter_column: Optional[str]=None,
+    filter_value: Optional[str]=None,
+    filter_column2: Optional[str]=None,
+    filter_value2: Optional[str]=None,
+) -> pd.DataFrame:
+    df = dataloader._load_data()
+    ## TODO could make this work more generalized by passing a dictionary
+    ## https://stackoverflow.com/questions/34157811/filter-a-pandas-dataframe-using-values-from-a-dict
+    if filter_column and filter_column2:
+        return df[(df[filter_column] == filter_value) & (df[filter_column2] == filter_value2)]
+    elif filter_column and filter_value:
+        return df[df[filter_column] == filter_value]
+    return df
+
 def unique_values(
     dataloader: DataLoader,
     search_column: str,
@@ -156,16 +174,35 @@ def unique_values(
     filter_column: Optional[str]=None,
     filter_value: Optional[str]=None,
     filter_column2: Optional[str]=None,
-    filter_value2: Optional[str]=None,    
+    filter_value2: Optional[str]=None,
 ):
-    df = dataloader._load_data()
+    return list(
+        filter_df(
+            dataloader=dataloader,
+            filter_column=filter_column,
+            filter_value=filter_value,
+            filter_column2=filter_column2,
+            filter_value2=filter_value2,
+        )[search_column].unique()
+    )
 
-    if filter_column and filter_column2:
-        return list(df[(df[filter_column] == filter_value) & (df[filter_column2] == filter_value2)][search_column].unique())
-    elif filter_column and filter_value:
-        return list(df[df[filter_column] == filter_value][search_column].unique())
-    return list(df[search_column].unique())
-    
-    ## TODO could make this work more generalized by passing a dictionary
-    ## https://stackoverflow.com/questions/34157811/filter-a-pandas-dataframe-using-values-from-a-dict
-    
+def rows_with_label(
+    dataloader: DataLoader,
+    display_column: str,
+    filter_column: Optional[str]=None,
+    filter_value: Optional[str]=None,
+    filter_column2: Optional[str]=None,
+    filter_value2: Optional[str]=None,
+) -> List[Dict[int,str]]:
+    filtered_rows = filter_df(
+        dataloader=dataloader,
+        filter_column=filter_column,
+        filter_value=filter_value,
+        filter_column2=filter_column2,
+        filter_value2=filter_value2,
+    )
+    return [
+        {row[0]: row[1][display_column]} # Row 0 is the index
+        for row
+        in filtered_rows.iterrows()
+    ]
