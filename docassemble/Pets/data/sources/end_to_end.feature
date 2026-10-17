@@ -9,9 +9,9 @@ Feature: Create a pet characteristics document
     And I tap to continue
     And I wait 1 second
     And the user gets to "download" with this data:
-      | var | value |
-      | pet['Milo'].species | Cat |
-      | pet['Milo'].breed | Siamese |
-      | pet['Milo'].label_ids['1'] | True |
-      | pet.there_is_another | False |
+      | var | value | trigger |
+      | pet[i].species | Cat | pet['Milo'].species |
+      | pet[i].breed | Siamese | pet['Milo'].breed |
+      | pet[i].label_ids['1'] | True | pet['Milo'].label_ids |
+      | pet.there_is_another | False | |
     Then I should see the phrase "Your form is ready to download."
