@@ -5,9 +5,11 @@ Feature: Create a pet characteristics document
   Scenario: Complete the interview and reach its final document screen
     Given I start the interview at "multiple_row_retrieval.yml"
     And the maximum seconds for each Step in this Scenario is 240
+    When I set the var "pet.new_item_name" to "Milo"
+    And I tap to continue
+    And I wait 1 second
     And the user gets to "download" with this data:
       | var | value |
-      | pet.new_item_name | Milo |
       | pet['Milo'].species | Cat |
       | pet['Milo'].breed | Siamese |
       | pet['Milo'].label_ids['1'] | True |
